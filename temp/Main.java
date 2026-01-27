@@ -98,5 +98,12 @@ public class Main{
     PrintWriter out = new PrintWriter(System.out);
 
     // ここから下にコードを書く
+    int a = fs.nextInt();
+    int b = fs.nextInt();
+    int c = fs.nextInt();
+    String s = fs.next();
+
+    out.println((a+b+c) + " " + s);
+    out.flush();
   }
 }
