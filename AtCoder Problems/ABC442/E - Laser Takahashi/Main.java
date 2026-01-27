@@ -92,25 +92,32 @@ class FastScanner {
 }
 
 public class Main {
+  static class Pair {
+    long x, y;
+    Pair(long x, long y) {
+      this.x = x;
+      this.y = y;
+    }
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (!(o instanceof Pair)) return false;
+      Pair p = (Pair) o;
+      return x == p.x && y == p.y;
+    }
+    @Override
+    public int hashCode() {
+      return Objects.hash(x, y);
+    }
+  }
 
   static long gcd(long a, long b) {
-    a = Math.abs(a);
-    b = Math.abs(b);
     while (b != 0) {
-      long t = a % b;
-      a = b;
-      b = t;
+      long t = b;
+      b = a % b;
+      a = t;
     }
-    return a;
-  }
-  
-  static long pack(int x, int y) {
-    return (((long) x) << 32) ^ (y & 0xffffffffL);
-  }
-
-  static final class Pair {
-    final int x, y;
-    Pair(int x, int y) { this.x = x; this.y = y; }
+    return Math.abs(a);
   }
 
   public static void main(String[] args) {
@@ -119,73 +126,60 @@ public class Main {
 
     int N = fs.nextInt();
     int Q = fs.nextInt();
+    long[][] XY = new long[N][2];
+    for (int i = 0; i < N; i++) {
+      XY[i][0] = fs.nextLong();
+      XY[i][1] = fs.nextLong();
+    }
 
-    long[] Akey = new long[N];
+    Pair[] A = new Pair[N];
     ArrayList<Pair> B = new ArrayList<>();
     ArrayList<Pair> C = new ArrayList<>();
 
     for (int i = 0; i < N; i++) {
-      long X = fs.nextLong();
-      long Y = fs.nextLong();
-
-      long M = gcd(X, Y);
-      int rx, ry;
-      if (M == 0) {
-        rx = 0; ry = 0;
-      } else {
-        rx = (int) (X / M);
-        ry = (int) (Y / M);
-      }
-
-      Akey[i] = pack(rx, ry);
-
+      long X = XY[i][0], Y = XY[i][1];
+      long M = gcd(Math.abs(X), Math.abs(Y));
+      long nx = X / M, ny = Y / M;
+      A[i] = new Pair(nx, ny);
       if (X == 0) {
-        if (Y > 0) B.add(new Pair(rx, ry));
-        else C.add(new Pair(rx, ry));
+        if (Y > 0) B.add(new Pair(nx, ny));
+        else C.add(new Pair(nx, ny));
       } else if (X > 0) {
-        B.add(new Pair(rx, ry));
+        B.add(new Pair(nx, ny));
       } else {
-        C.add(new Pair(rx, ry));
+        C.add(new Pair(nx, ny));
       }
     }
 
-    Comparator<Pair> cmp = (p1, p2) -> {
-      long det = (long) p1.x * (long) p2.y - (long) p1.y * (long) p2.x; // det(p1,p2)
-      return det < 0 ? -1 : (det > 0 ? 1 : 0);
+    Comparator<Pair> comp = (r1, r2) -> {
+      long X1 = r1.x, Y1 = r1.y, X2 = r2.x, Y2 = r2.y;
+      return Long.compare(-(X2 * Y1 - Y2 * X1), 0);
     };
 
-    B.sort(cmp);
-    C.sort(cmp);
+    B.sort(comp);
+    C.sort(comp);
 
-    Pair[] ANS = new Pair[N];
-    int pos = 0;
-    for (Pair p : B) ANS[pos++] = p;
-    for (Pair p : C) ANS[pos++] = p;
+    ArrayList<Pair> ANS = new ArrayList<>();
+    ANS.addAll(B);
+    ANS.addAll(C);
 
-    HashMap<Long, Integer> D = new HashMap<>(); // 初出 index
-    HashMap<Long, Integer> E = new HashMap<>(); // 最終 index + 1
-
+    HashMap<Pair, Integer> D = new HashMap<>();
+    HashMap<Pair, Integer> E = new HashMap<>();
     for (int i = 0; i < N; i++) {
-      Pair p = ANS[i];
-      long k = pack(p.x, p.y);
-      D.putIfAbsent(k, i);
-      E.put(k, i + 1);
+      Pair p = ANS.get(i);
+      D.putIfAbsent(p, i);
+      E.put(p, i + 1);
     }
 
-    for (int qi = 0; qi < Q; qi++) {
+    for (int q = 0; q < Q; q++) {
       int A_IDX = fs.nextInt() - 1;
       int B_IDX = fs.nextInt() - 1;
-
-      int IDX0 = D.get(Akey[A_IDX]);
-      int IDX1 = E.get(Akey[B_IDX]);
-
-      int res = (IDX1 - IDX0) % N;
-      if (res < 0) res += N;
-      if (res == 0) res = N;
-
-      out.println(res);
+      int IDX0 = D.get(A[A_IDX]);
+      int IDX1 = E.get(A[B_IDX]);
+      int RESULT = (IDX1 - IDX0) % N;
+      if (RESULT == 0) RESULT = N;
+      out.println(RESULT);
     }
-
     out.flush();
   }
 }

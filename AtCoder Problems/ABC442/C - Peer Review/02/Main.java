@@ -91,101 +91,47 @@ class FastScanner {
   }
 }
 
-public class Main {
 
-  static long gcd(long a, long b) {
-    a = Math.abs(a);
-    b = Math.abs(b);
-    while (b != 0) {
-      long t = a % b;
-      a = b;
-      b = t;
-    }
-    return a;
-  }
-  
-  static long pack(int x, int y) {
-    return (((long) x) << 32) ^ (y & 0xffffffffL);
-  }
-
-  static final class Pair {
-    final int x, y;
-    Pair(int x, int y) { this.x = x; this.y = y; }
-  }
-
-  public static void main(String[] args) {
+public class Main{
+  public static void main(String[] args){
     FastScanner fs = new FastScanner();
     PrintWriter out = new PrintWriter(System.out);
 
     int N = fs.nextInt();
-    int Q = fs.nextInt();
+    int M = fs.nextInt();
 
-    long[] Akey = new long[N];
-    ArrayList<Pair> B = new ArrayList<>();
-    ArrayList<Pair> C = new ArrayList<>();
+    int[][] AB_LIST = new int[M][2];
+    for (int i = 0; i < M; i++) {
+      AB_LIST[i][0] = fs.nextInt();
+      AB_LIST[i][1] = fs.nextInt();
+    }
 
-    for (int i = 0; i < N; i++) {
-      long X = fs.nextLong();
-      long Y = fs.nextLong();
+    Set<Integer>[] CONFLICT = new HashSet[N + 1];
+    for (int i = 0; i <= N; i++) {
+      CONFLICT[i] = new HashSet<Integer>();
+    }
 
-      long M = gcd(X, Y);
-      int rx, ry;
-      if (M == 0) {
-        rx = 0; ry = 0;
+    for (int i = 0; i < M; i++) {
+      int a = AB_LIST[i][0];
+      int b = AB_LIST[i][1];
+      CONFLICT[a].add(b);
+      CONFLICT[b].add(a);
+    }
+
+    List<Integer> ANSWER = new ArrayList<>();
+    for (int i = 1; i <= N; i++) {
+      int CHECK = N - 1 - CONFLICT[i].size();
+      if (CHECK < 3) {
+        ANSWER.add(0);
       } else {
-        rx = (int) (X / M);
-        ry = (int) (Y / M);
-      }
-
-      Akey[i] = pack(rx, ry);
-
-      if (X == 0) {
-        if (Y > 0) B.add(new Pair(rx, ry));
-        else C.add(new Pair(rx, ry));
-      } else if (X > 0) {
-        B.add(new Pair(rx, ry));
-      } else {
-        C.add(new Pair(rx, ry));
+        ANSWER.add(CHECK * (CHECK - 1) * (CHECK - 2) / 6);
       }
     }
 
-    Comparator<Pair> cmp = (p1, p2) -> {
-      long det = (long) p1.x * (long) p2.y - (long) p1.y * (long) p2.x; // det(p1,p2)
-      return det < 0 ? -1 : (det > 0 ? 1 : 0);
-    };
-
-    B.sort(cmp);
-    C.sort(cmp);
-
-    Pair[] ANS = new Pair[N];
-    int pos = 0;
-    for (Pair p : B) ANS[pos++] = p;
-    for (Pair p : C) ANS[pos++] = p;
-
-    HashMap<Long, Integer> D = new HashMap<>(); // 初出 index
-    HashMap<Long, Integer> E = new HashMap<>(); // 最終 index + 1
-
-    for (int i = 0; i < N; i++) {
-      Pair p = ANS[i];
-      long k = pack(p.x, p.y);
-      D.putIfAbsent(k, i);
-      E.put(k, i + 1);
+    for (int i = 0; i < ANSWER.size(); i++) {
+      if (i > 0) out.println(" ");
+      out.println(ANSWER.get(i));
     }
-
-    for (int qi = 0; qi < Q; qi++) {
-      int A_IDX = fs.nextInt() - 1;
-      int B_IDX = fs.nextInt() - 1;
-
-      int IDX0 = D.get(Akey[A_IDX]);
-      int IDX1 = E.get(Akey[B_IDX]);
-
-      int res = (IDX1 - IDX0) % N;
-      if (res < 0) res += N;
-      if (res == 0) res = N;
-
-      out.println(res);
-    }
-
     out.flush();
   }
 }

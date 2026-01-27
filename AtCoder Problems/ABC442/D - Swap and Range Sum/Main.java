@@ -91,101 +91,89 @@ class FastScanner {
   }
 }
 
-public class Main {
+class SegTree {
+  private int n, num;
+  private long[] tree;
+  private final long ide_ele = 0L; // 単位元（加算なら0)
 
-  static long gcd(long a, long b) {
-    a = Math.abs(a);
-    b = Math.abs(b);
-    while (b != 0) {
-      long t = a % b;
-      a = b;
-      b = t;
+  // 区間和用
+  public SegTree(long[] init_val) {
+    this.n = init_val.length;
+    this.num = 1;
+    while (this.num < n) this.num <<= 1;
+    this.tree = new long[2 * this.num];
+    Arrays.fill(this.tree, ide_ele);
+    // 葉にセット
+    for (int i = 0; i < n; i++) {
+      this.tree[this.num + i] = init_val[i];
     }
-    return a;
-  }
-  
-  static long pack(int x, int y) {
-    return (((long) x) << 32) ^ (y & 0xffffffffL);
-  }
-
-  static final class Pair {
-    final int x, y;
-    Pair(int x, int y) { this.x = x; this.y = y; }
+    // 構築
+    for (int i = this.num - 1; i > 0; i--) {
+      this.tree[i] = this.tree[2 * i] + this.tree[2 * i + 1];
+    }
   }
 
-  public static void main(String[] args) {
+  // k番目(0-indexed)をxに更新
+  public void update(int k, long x) {
+    k += this.num;
+    this.tree[k] = x;
+    while (k > 1) {
+      k >>= 1;
+      this.tree[k] = this.tree[2 * k] + this.tree[2 * k + 1];
+    }
+  }
+
+  // [l, r) の区間和
+  public long query(int l, int r) {
+    long res = ide_ele;
+    l += this.num;
+    r += this.num;
+    while (l < r) {
+      if ((l & 1) == 1) res += this.tree[l++];
+      if ((r & 1) == 1) res += this.tree[--r];
+      l >>= 1;
+      r >>= 1;
+    }
+    return res;
+  }
+}
+
+public class Main{
+  public static void main(String[] args){
     FastScanner fs = new FastScanner();
     PrintWriter out = new PrintWriter(System.out);
 
-    int N = fs.nextInt();
-    int Q = fs.nextInt();
+    long N = fs.nextLong();
+    long Q = fs.nextLong();
 
-    long[] Akey = new long[N];
-    ArrayList<Pair> B = new ArrayList<>();
-    ArrayList<Pair> C = new ArrayList<>();
+    long[] A_LIST = new long[(int)N];
+    for(int i = 0; i < N; i++){
+      A_LIST[i] = fs.nextLong();
+    }
 
-    for (int i = 0; i < N; i++) {
-      long X = fs.nextLong();
-      long Y = fs.nextLong();
+    SegTree st = new SegTree(A_LIST);
 
-      long M = gcd(X, Y);
-      int rx, ry;
-      if (M == 0) {
-        rx = 0; ry = 0;
-      } else {
-        rx = (int) (X / M);
-        ry = (int) (Y / M);
+    for (int i = 0; i < Q; i++){
+      int queryType = fs.nextInt();
+
+      switch (queryType){
+        case 1:
+          int x = fs.nextInt() - 1;
+
+          long temp = A_LIST[x];
+          A_LIST[x] = A_LIST[x + 1];
+          A_LIST[x + 1] = temp;
+
+          st.update(x, A_LIST[x]);
+          st.update(x + 1, A_LIST[x + 1]);
+          break;
+        case 2:
+          int l = fs.nextInt() - 1;
+          int r = fs.nextInt() - 1;
+          out.println(st.query(l, r+1));
+          break;
       }
-
-      Akey[i] = pack(rx, ry);
-
-      if (X == 0) {
-        if (Y > 0) B.add(new Pair(rx, ry));
-        else C.add(new Pair(rx, ry));
-      } else if (X > 0) {
-        B.add(new Pair(rx, ry));
-      } else {
-        C.add(new Pair(rx, ry));
-      }
     }
-
-    Comparator<Pair> cmp = (p1, p2) -> {
-      long det = (long) p1.x * (long) p2.y - (long) p1.y * (long) p2.x; // det(p1,p2)
-      return det < 0 ? -1 : (det > 0 ? 1 : 0);
-    };
-
-    B.sort(cmp);
-    C.sort(cmp);
-
-    Pair[] ANS = new Pair[N];
-    int pos = 0;
-    for (Pair p : B) ANS[pos++] = p;
-    for (Pair p : C) ANS[pos++] = p;
-
-    HashMap<Long, Integer> D = new HashMap<>(); // 初出 index
-    HashMap<Long, Integer> E = new HashMap<>(); // 最終 index + 1
-
-    for (int i = 0; i < N; i++) {
-      Pair p = ANS[i];
-      long k = pack(p.x, p.y);
-      D.putIfAbsent(k, i);
-      E.put(k, i + 1);
-    }
-
-    for (int qi = 0; qi < Q; qi++) {
-      int A_IDX = fs.nextInt() - 1;
-      int B_IDX = fs.nextInt() - 1;
-
-      int IDX0 = D.get(Akey[A_IDX]);
-      int IDX1 = E.get(Akey[B_IDX]);
-
-      int res = (IDX1 - IDX0) % N;
-      if (res < 0) res += N;
-      if (res == 0) res = N;
-
-      out.println(res);
-    }
-
     out.flush();
   }
 }
