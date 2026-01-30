@@ -44,12 +44,10 @@ func (fs *FastScanner) readByte() int {
 	return -1
 }
 
-// Java版と同じ: ASCII printable (33..126)
 func isPrintableChar(c int) bool {
 	return 33 <= c && c <= 126
 }
 
-// Java版 hasNext() 相当
 func (fs *FastScanner) HasNext() bool {
 	for fs.hasNextByte() && !isPrintableChar(int(fs.buffer[fs.ptr])) {
 		fs.ptr++
@@ -57,12 +55,10 @@ func (fs *FastScanner) HasNext() bool {
 	return fs.hasNextByte()
 }
 
-// Java版 next() 相当
 func (fs *FastScanner) Next() string {
 	if !fs.HasNext() {
 		panic("NoSuchElementException")
 	}
-	// StringBuilder相当: byte slice に append
 	b := make([]byte, 0, 16)
 	c := fs.readByte()
 	for isPrintableChar(c) {
@@ -72,7 +68,6 @@ func (fs *FastScanner) Next() string {
 	return string(b)
 }
 
-// Java版 nextLong() 相当
 func (fs *FastScanner) NextInt64() int64 {
 	if !fs.HasNext() {
 		panic("NoSuchElementException")
@@ -105,7 +100,6 @@ func (fs *FastScanner) NextInt64() int64 {
 	}
 }
 
-// Java版 nextInt() 相当（範囲チェック付き）
 func (fs *FastScanner) NextInt() int {
 	x := fs.NextInt64()
 	if x < -2147483648 || x > 2147483647 {
@@ -114,7 +108,6 @@ func (fs *FastScanner) NextInt() int {
 	return int(x)
 }
 
-// Java版 nextDouble() 相当（strconvでパース）
 func (fs *FastScanner) NextFloat64() float64 {
 	s := fs.Next()
 	v, err := strconv.ParseFloat(s, 64)
@@ -122,13 +115,6 @@ func (fs *FastScanner) NextFloat64() float64 {
 		panic("NumberFormatException")
 	}
 	return v
-}
-
-func abs(a int) int {
-	if a < 0 {
-		return -a
-	}
-	return a
 }
 
 func main() {
