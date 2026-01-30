@@ -135,4 +135,25 @@ func main() {
 	fs := NewFastScanner(os.Stdin)
 	out := bufio.NewWriterSize(os.Stdout, 1<<20)
 	defer out.Flush()
+
+	N := fs.NextInt()
+	tPast, xPast, yPast := 0, 0, 0
+
+	for i := 0; i < N; i++ {
+		t := fs.NextInt()
+		x := fs.NextInt()
+		y := fs.NextInt()
+
+		length := abs(x - xPast) + abs(y - yPast)
+		time := t - tPast
+
+		if length <= time && length%2 == time%2 {
+			// OK
+		} else {
+			fmt.Fprintln(out, "No")
+			return
+		}
+		tPast, xPast, yPast = t, x, y
+	}
+	fmt.Fprintln(out, "Yes")
 }
