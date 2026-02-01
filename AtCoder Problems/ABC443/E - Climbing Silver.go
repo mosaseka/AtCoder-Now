@@ -10,8 +10,77 @@ import (
 
 func main() {
 	fs := NewFastScanner(os.Stdin)
-	out := bufio.NewWriterSize(os.Stdout, 1<<20)
+	out := bufio.NewWriter(os.Stdout)
 	defer out.Flush()
+
+	T := fs.NextInt()
+
+	for t := 0; t < T; t++ {
+		N, C := fs.NextInt(), fs.NextInt()
+		S_LIST := make([][]rune, N)
+		for i := 0; i < N; i++ {
+			S_LIST[i] = []rune(fs.Next())
+		}
+
+		C -= 1
+		LOW := make([]int, N)
+		for i := 0; i < N; i++ {
+			LOW[i] = -1
+		}
+
+		for i := 0; i < N; i++ {
+			for j := 0; j < N; j++ {
+				if S_LIST[i][j] == '#' {
+					LOW[j] = i
+				}
+			}
+		}
+
+		DP := make([][]int, N)
+		for i := 0; i < N; i++ {
+			DP[i] = make([]int, N)
+		}
+
+		for i := 0; i < N; i++ {
+			DP[i][C] = 1
+		}
+
+		for i := N - 2; i >= 0; i-- {
+			for j := 0; j < N; j++ {
+				if DP[i][j] > 0 {
+					continue
+				}
+
+				FLAG := false
+				if DP[i+1][j] > 0 {
+					FLAG = true
+				}
+				if j > 0 && DP[i+1][j-1] > 0 {
+					FLAG = true
+				}
+				if j+1 < N && DP[i+1][j+1] > 0 {
+					FLAG = true
+				}
+
+				if FLAG {
+					if S_LIST[i][j] == '.' {
+						DP[i][j] = 1
+					} else {
+						if LOW[j] == i {
+							for k := 0; k <= i; k++ {
+								DP[k][j] = 1
+							}
+						}
+					}
+				}
+			}
+		}
+
+		for j := 0; j < N; j++ {
+			fmt.Fprint(out, DP[0][j])
+		}
+		fmt.Fprintln(out)
+	}
 }
 
 type FastScanner struct {

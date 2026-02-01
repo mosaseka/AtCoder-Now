@@ -8,10 +8,48 @@ import (
 	"strconv"
 )
 
+func sum(data []int) int{
+	res := 0
+	for i := 0; i < len(data); i++ {
+		res += data[i]
+	}
+	return res
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
 func main() {
 	fs := NewFastScanner(os.Stdin)
 	out := bufio.NewWriterSize(os.Stdout, 1<<20)
 	defer out.Flush()
+
+	T := fs.NextInt()
+
+	for t := 0; t < T; t++ {
+		N := fs.NextInt()
+		R := make([]int, N)
+		for i := 0; i < N; i++ {
+			R[i] = fs.NextInt()
+		}
+
+		A := make([]int, N)
+		copy(A, R)
+
+		for i := 1; i < N; i++ {
+			A[i] = min(A[i], A[i-1]+1)
+		}
+
+		for i := N - 2; i >= 0; i-- {
+			A[i] = min(A[i], A[i+1]+1)
+		}
+
+		fmt.Fprintln(out, sum(R)-sum(A))
+	}
 }
 
 type FastScanner struct {

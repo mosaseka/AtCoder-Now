@@ -8,12 +8,6 @@ import (
 	"strconv"
 )
 
-func main() {
-	fs := NewFastScanner(os.Stdin)
-	out := bufio.NewWriterSize(os.Stdout, 1<<20)
-	defer out.Flush()
-}
-
 type FastScanner struct {
 	in     io.Reader
 	buffer []byte
@@ -121,4 +115,14 @@ func (fs *FastScanner) NextFloat64() float64 {
 		panic("NumberFormatException")
 	}
 	return v
+}
+
+func main() {
+	fs := NewFastScanner(os.Stdin)
+	out := bufio.NewWriterSize(os.Stdout, 1<<20)
+	defer out.Flush()
+
+	S := fs.Next()
+
+	fmt.Fprintln(out, S+"s")
 }
