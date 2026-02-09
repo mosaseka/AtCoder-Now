@@ -5,9 +5,88 @@ public class Main{
   public static void main(String[] args){
     FastScanner fs = new FastScanner();
     PrintWriter out = new PrintWriter(System.out);
+
+    final long NEG_INF = -(1L << 60);
+
+    int N = fs.nextInt();
+    int M = fs.nextInt();
+    int K = fs.nextInt();
+
+    long[] A = new long[N];
+    int[] B = new int[N];
+    for (int i = 0; i < N; i++) {
+      A[i] = fs.nextLong();
+      B[i] = fs.nextInt();
+    }
+
+    MonotonicDeque[] deque = new MonotonicDeque[M + 1];
+    for (int i = 0; i <= M; i++){
+      deque[i] = new MonotonicDeque();
+    }
+
+    long[] dp = new long[M + 1];
+    long ans = 0;
+
+    for (int i = 0; i < N; i++){
+      int limit = i - K;
+      limit = Math.max(limit, 0);
+      
+      for(int c = 0; c <= M; c++){
+        deque[c].popExpired(limit);
+        dp[c] = NEG_INF;
+      }
+
+      int bi = B[i];
+      long ai = A[i];
+      if (bi <= M){
+        for (int c = bi; c <= M; c++){
+          long prev = deque[c - bi].getMax();
+          prev = Math.max(0, prev);
+          dp[c] = prev + ai;
+        }
+      }
+
+      for (int c = 0; c <= M; c++){
+        if (dp[c] > ans){ans = dp[c];}
+        if (dp[c] >= 0){deque[c].push(i, dp[c]);}
+      }
+    }
+    out.println(ans);
+    out.flush();
   }
 }
 
+class MonotonicDeque {
+  private static class Pair {
+    int idx;
+    long val;
+    Pair(int idx, long val) {
+      this.idx = idx;
+      this.val = val;
+    }
+  }
+  
+  private Deque<Pair> deque = new ArrayDeque<>();
+  private final long NEG_INF = -(1L << 60);
+  
+  public void push(int idx, long val) {
+    while (!deque.isEmpty() && deque.peekLast().val <= val) {
+      deque.pollLast();
+    }
+    deque.addLast(new Pair(idx, val));
+  }
+  
+  public void popExpired(int limit) {
+    while (!deque.isEmpty() && deque.peekFirst().idx < limit) {
+      deque.pollFirst();
+    }
+  }
+  
+  public long getMax() {
+    if (deque.isEmpty()) return NEG_INF;
+    return deque.peekFirst().val;
+  }
+}
 
 class FastScanner {
   private final InputStream in = System.in;

@@ -5,6 +5,50 @@ public class Main{
   public static void main(String[] args){
     FastScanner fs = new FastScanner();
     PrintWriter out = new PrintWriter(System.out);
+
+    int N = fs.nextInt();
+    int K = fs.nextInt();
+
+    long[] H = new long[N];
+    for(int i = 0; i < N; i++){
+      H[i] = fs.nextLong();
+    }
+
+    Deque<Integer> maxDeque = new ArrayDeque<>();
+    Deque<Integer> minDeque = new ArrayDeque<>();
+    for (int i = 0; i < N; i++) {
+        maxDeque.add(0);
+        minDeque.add(0);
+    }
+
+    long ans = Long.MIN_VALUE;
+
+    for(int i = 0; i < N; i++){
+      while (!maxDeque.isEmpty() && H[maxDeque.peekLast()] <= H[i]) {
+        maxDeque.pollLast();
+      }
+      maxDeque.addLast(i);
+
+      while (!minDeque.isEmpty() && H[minDeque.peekLast()] >= H[i]) {
+        minDeque.pollLast();
+      }
+      minDeque.addLast(i);
+
+      if (maxDeque.isEmpty() && maxDeque.peekFirst() <= i - K){
+        maxDeque.pollFirst();
+      }
+
+      if (minDeque.isEmpty() && minDeque.peekFirst() <= i - K){
+        minDeque.pollFirst();
+      }
+
+      if (i >= K - 1){
+        long diff = H[(int)maxDeque.peekFirst()] - H[(int)minDeque.peekFirst()];
+        if (i == K-1 || diff > ans){ans = diff;}
+      }
+    }
+    out.println(ans);
+    out.flush();
   }
 }
 

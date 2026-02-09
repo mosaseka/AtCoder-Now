@@ -5,6 +5,24 @@ public class Main{
   public static void main(String[] args){
     FastScanner fs = new FastScanner();
     PrintWriter out = new PrintWriter(System.out);
+
+    int N = fs.nextInt();
+    int K = fs.nextInt();
+
+    int[] D_LIST = new int[N];
+    for(int i = 0; i < N; i++){
+      D_LIST[i] = fs.nextInt();
+    }
+
+    Arrays.sort(D_LIST);
+
+    long ans = 0;
+    for (int i = 0; i < N-K; i++){
+      ans += D_LIST[i];
+    }
+
+    out.println(ans);
+    out.flush();
   }
 }
 

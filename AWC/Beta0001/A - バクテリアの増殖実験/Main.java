@@ -5,6 +5,11 @@ public class Main{
   public static void main(String[] args){
     FastScanner fs = new FastScanner();
     PrintWriter out = new PrintWriter(System.out);
+
+    long K = fs.nextLong();
+
+    out.println(K+1);
+    out.flush();
   }
 }
 

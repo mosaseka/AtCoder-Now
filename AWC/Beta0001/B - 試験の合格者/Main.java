@@ -5,6 +5,30 @@ public class Main{
   public static void main(String[] args){
     FastScanner fs = new FastScanner();
     PrintWriter out = new PrintWriter(System.out);
+
+    int N = fs.nextInt();
+    int L = fs.nextInt();
+    int R = fs.nextInt();
+
+    int[] P = new int[N];
+    for(int i = 0; i < N; i++){
+      P[i] = fs.nextInt();
+    }
+
+    int maxIndex = -1;
+    long maxScore = -1000000000L;
+
+    for (int i = 0; i < N; i++){
+      if (L <= P[i] && P[i] <= R){
+        if (maxScore < P[i]){
+          maxScore = P[i];
+          maxIndex = i;
+        }
+      }
+    }
+
+    out.println((maxIndex == -1) ? -1 : maxIndex + 1);
+    out.flush();
   }
 }
 
