@@ -2,9 +2,10 @@ package main
 
 import (
 	"bufio"
-	//"fmt"
+	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strconv"
 	// "github.com/emirpasic/gods/queues/priorityqueue"
 )
@@ -12,7 +13,36 @@ import (
 func main() {
 	fs := NewFastScanner(os.Stdin)
 	out := bufio.NewWriterSize(os.Stdout, 1<<20)
+
+	N, Q := fs.NextInt64(), fs.NextInt64()
+
+	P_LIST := make([]int64, N)
+	bucket := make([]int64, N+1)
+	for i := int64(0); i < N; i++ {
+		P_LIST[i] = fs.NextInt64()
+		bucket[P_LIST[i]] = i
+	}
+
 	defer out.Flush()
+
+	pos := N + 10
+	for i := int64(0); i < Q; i++ {
+		a := fs.NextInt64()
+		bucket[a] = pos
+		pos++
+	}
+
+	sort.Slice(P_LIST, func(i, j int) bool {
+		return bucket[P_LIST[i]] < bucket[P_LIST[j]]
+	})
+
+	for i, p := range P_LIST {
+		if i > 0 {
+			fmt.Fprint(out, " ")
+		}
+		fmt.Fprint(out, p)
+	}
+	fmt.Fprintln(out)
 }
 
 type FastScanner struct {

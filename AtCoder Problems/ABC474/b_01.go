@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	//"fmt"
+	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -12,6 +12,23 @@ import (
 func main() {
 	fs := NewFastScanner(os.Stdin)
 	out := bufio.NewWriterSize(os.Stdout, 1<<20)
+
+	N := fs.NextInt()
+
+	P_LIST := make([]int, N)
+	for i := 0; i < N; i++ {
+		P_LIST[i] = fs.NextInt()
+	}
+
+	for i := 0; i < N; i++ {
+		if i/10 != (P_LIST[i]-1)/10{
+			fmt.Fprintln(out, "No")
+			defer out.Flush()
+			return
+		}
+	}
+
+	fmt.Fprintln(out, "Yes")
 	defer out.Flush()
 }
 

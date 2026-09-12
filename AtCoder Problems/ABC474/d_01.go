@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	//"fmt"
+	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -13,6 +13,40 @@ func main() {
 	fs := NewFastScanner(os.Stdin)
 	out := bufio.NewWriterSize(os.Stdout, 1<<20)
 	defer out.Flush()
+
+	N := fs.NextInt64()
+	A_LIST := make([]int64, N)
+	B_LIST := make([]int64, N)
+	for i := range A_LIST {
+		A_LIST[i] = fs.NextInt64()
+	}
+	for i := range B_LIST {
+		B_LIST[i] = fs.NextInt64()
+	}
+
+	w := make([]int64, N)
+	result := false
+	for i := range w {
+		if A_LIST[i] > B_LIST[i] {
+			w[i] = 1_000_000_000_000_000_000
+			result = true
+		} else {
+			w[i] = 1
+		}
+	}
+	if !result {
+		fmt.Fprintln(out, "No")
+		return
+	}
+
+	fmt.Fprintln(out, "Yes")
+	for i, weight := range w {
+		if i > 0 {
+			fmt.Fprint(out, " ")
+		}
+		fmt.Fprint(out, weight)
+	}
+	fmt.Fprintln(out)
 }
 
 type FastScanner struct {
