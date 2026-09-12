@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	//"fmt"
+	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -12,6 +12,28 @@ import (
 func main() {
 	fs := NewFastScanner(os.Stdin)
 	out := bufio.NewWriterSize(os.Stdout, 1<<20)
+
+	N := fs.NextInt()
+	A_LIST := make([]int64, N)
+	for i := 0; i < N; i++ {
+		A_LIST[i] = fs.NextInt64()
+	}
+
+	count100 := int64(0)
+	count10 := int64(0)
+	count1 := int64(0)
+
+	for i := 0; i < N; i++ {
+		change := (1000 - A_LIST[i]%1000) % 1000
+		count100 += change / 100
+		change %= 100
+		count10 += change / 10
+		change %= 10
+		count1 += change
+	}
+
+	fmt.Fprint(out, count1, " ", count10, " ", count100)
+
 	defer out.Flush()
 }
 

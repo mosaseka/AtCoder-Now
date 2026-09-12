@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	//"fmt"
+	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -13,6 +13,45 @@ func main() {
 	fs := NewFastScanner(os.Stdin)
 	out := bufio.NewWriterSize(os.Stdout, 1<<20)
 	defer out.Flush()
+
+	N, S, L := fs.NextInt(), fs.NextInt64(), fs.NextInt64()
+
+	pos := make([]int64, N+1)
+	for i := 1; i < N; i++ {
+		pos[i+1] = pos[i] + fs.NextInt64()
+	}
+
+	s := int(S)
+	sPos := pos[s]
+	answer := 1
+
+	for left := 1; left <= s; left++ {
+		leftDist := sPos - pos[left]
+		for right := s; right <= N; right++ {
+			rightDist := pos[right] - sPos
+			cost := leftDist + rightDist + minInt64(leftDist, rightDist)
+			if cost > L {
+				break
+			}
+			answer = maxInt(answer, right-left+1)
+		}
+	}
+
+	fmt.Fprintln(out, answer)
+}
+
+func minInt64(a, b int64) int64 {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func maxInt(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
 
 type FastScanner struct {

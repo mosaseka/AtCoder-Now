@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	//"fmt"
+	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -12,6 +12,17 @@ import (
 func main() {
 	fs := NewFastScanner(os.Stdin)
 	out := bufio.NewWriterSize(os.Stdout, 1<<20)
+
+	S := fs.Next()
+
+	ANSWER := ""
+
+	for i := 0; i < len(S); i++ {
+		ANSWER += string(S[i]) + "o"
+	}
+
+	fmt.Fprintln(out, ANSWER[:len(ANSWER)-1])
+
 	defer out.Flush()
 }
 

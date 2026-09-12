@@ -2,17 +2,118 @@ package main
 
 import (
 	"bufio"
-	//"fmt"
+	"fmt"
 	"io"
 	"os"
 	"strconv"
-	// "github.com/emirpasic/gods/queues/priorityqueue"
+)
+
+type Node struct {
+	next [2]int32
+	cnt  int32
+}
+
+var (
+	N, M, K int
+	W       int
+	bits    []uint64
+	trie    []Node
 )
 
 func main() {
 	fs := NewFastScanner(os.Stdin)
 	out := bufio.NewWriterSize(os.Stdout, 1<<20)
 	defer out.Flush()
+
+	N, M, K = fs.NextInt(), fs.NextInt(), fs.NextInt()
+	T := fs.Next()
+
+	W = (K + 63) / 64
+	bits = make([]uint64, N*W)
+	trie = make([]Node, 1, N*K+1)
+
+	for i := 0; i < N; i++ {
+		S := fs.Next()
+		for j := 0; j < K; j++ {
+			if S[j] == T[j] {
+				setBit(i, j)
+			}
+		}
+		addPath(i, 1)
+	}
+
+	Q := fs.NextInt()
+
+	for q := 0; q < Q; q++ {
+		i, j := fs.NextInt()-1, fs.NextInt()-1
+		addPath(i, -1)
+		flipBit(i, j)
+		addPath(i, 1)
+		if canPass(i) {
+			fmt.Fprintln(out, "Yes")
+		} else {
+			fmt.Fprintln(out, "No")
+		}
+	}
+}
+
+func bit(i, j int) int {
+	if (bits[i*W+j/64]>>(uint(j)&63))&1 == 1 {
+		return 1
+	}
+	return 0
+}
+
+func setBit(i, j int) {
+	bits[i*W+j/64] |= 1 << (uint(j) & 63)
+}
+
+func flipBit(i, j int) {
+	bits[i*W+j/64] ^= 1 << (uint(j) & 63)
+}
+
+func addPath(i int, delta int32) {
+	v := int32(0)
+	trie[v].cnt += delta
+	for j := 0; j < K; j++ {
+		b := bit(i, j)
+		if trie[v].next[b] == 0 {
+			trie = append(trie, Node{})
+			trie[v].next[b] = int32(len(trie) - 1)
+		}
+		v = trie[v].next[b]
+		trie[v].cnt += delta
+	}
+}
+
+func countChild(v int32, b int) int {
+	to := trie[v].next[b]
+	if to == 0 {
+		return 0
+	}
+	return int(trie[to].cnt)
+}
+
+func canPass(i int) bool {
+	v := int32(0)
+	passed := 0
+	for j := 0; j < K; j++ {
+		correct := countChild(v, 1)
+		me := bit(i, j)
+		if passed+correct <= M {
+			if me == 1 {
+				return true
+			}
+			passed += correct
+			v = trie[v].next[0]
+		} else {
+			if me == 0 {
+				return false
+			}
+			v = trie[v].next[1]
+		}
+	}
+	return false
 }
 
 type FastScanner struct {
