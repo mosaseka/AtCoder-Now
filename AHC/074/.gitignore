@@ -1,0 +1,6 @@
+# Benchmark reports and local working files.
+*.csv
+*-benchmark.md
+*.patch
+ans.txt
+*.pdf
